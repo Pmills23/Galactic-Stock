@@ -1,0 +1,140 @@
+#import the tkinter module and photoimage so that we can both create our GUI and add images within it.
+import tkinter as tk
+from tkinter import PhotoImage, ttk
+
+#This checks the purchase price of the unit for the unit type to see if what was entered was a valid statement.
+def validate_entry(entry):
+    try:
+        value = int(entry.get())
+        return True, value
+    except ValueError:
+        return False, None
+
+#This function runs the shop for units that are bought. It takes the purchase price and multiplies it by the number
+#entered by the user. If the number is not valid or using correct characters, it stops the transaction.
+def buy_unit(unit_name, price):
+    success, quantity = validate_entry(entry_quantity)
+    if success:
+        total_price = price * quantity
+        label_status.config(text=f"Purchase successful! Total cost: {total_price} minerals")
+    else:
+        label_status.config(text="Invalid quantity. Please enter a valid number.")
+
+#This function does the opposite of the last one by running the selling of units. It takes an entry of units and
+#quantity by the user and tells you the return on what you sold. By entering bad data it halts the function.
+def sell_unit(unit_name, price):
+    success, quantity = validate_entry(entry_quantity)
+    if success:
+        total_price = price * quantity
+        label_status.config(text=f"Sell successful! Total revenue: {total_price} minerals")
+    else:
+        label_status.config(text="Invalid quantity. Please enter a valid number.")
+
+#This is the function that performs the creation of my exit button allowing the program to be killed.
+def exit_application():
+    root.destroy()
+
+#This function adds a back button so the user may return to the original screen and see both the buy and sell options.
+def back_to_main_window():
+    frame_window2.pack_forget()
+    frame_window1.pack(fill=tk.BOTH, expand=True)
+
+#Create the main window.
+root = tk.Tk()
+root.title("Galactic Stock Exchange")
+root.geometry("500x400")
+
+#These lines pull the images from my directory to be used for graphic visuals.
+image_starcraft = PhotoImage(file=r"d:\Users\Valued Customer\Downloads\starcraft_logo.png")
+image_minerals = PhotoImage(file=r"d:\Users\Valued Customer\Downloads\minerals_icon.png")
+
+#These next few lines create the original window seen by the user.
+
+#This creates the window and fills it in black.
+frame_window1 = tk.Frame(root, bg="black")
+frame_window1.pack(fill=tk.BOTH, expand=True)
+
+#This adds the starcraft2 image on the window.
+label_logo = tk.Label(frame_window1, image=image_starcraft, bg="black")
+label_logo.pack(pady=10)
+
+#This command adds a buy button under the logo.
+btn_buy = tk.Button(frame_window1, text="Buy Units", command=lambda: show_buy_sell_window("Buy"))
+btn_buy.pack(pady=10)
+
+#This command adds the sell button under the buy button.
+btn_sell = tk.Button(frame_window1, text="Sell Units", command=lambda: show_buy_sell_window("Sell"))
+btn_sell.pack(pady=10)
+
+#This creates either the buy or sell window depending on user input.
+frame_window2 = tk.Frame(root, bg="black")
+
+label_unit_name = tk.Label(frame_window2, text="Select Unit:", fg="white", bg="black")
+label_unit_name.pack()
+
+#This creates the list for drop down options in which you can sell.
+unit_options = ["Marine", "Medic", "Siege Tank"]
+
+#This creates a combobox or drop down of buyable unit options. It also functions for the sell command.
+unit_combobox = ttk.Combobox(frame_window2, values=unit_options)
+unit_combobox.pack(pady=10)
+
+#Creates the quantity label for user understanding.
+label_quantity = tk.Label(frame_window2, text="Enter Quantity:", fg="white", bg="black")
+label_quantity.pack()
+
+#Creates the quantity entry textbox for user input.
+entry_quantity = tk.Entry(frame_window2)
+entry_quantity.pack(pady=10)
+
+#Creates the confirm button to be utilized.
+btn_confirm = tk.Button(frame_window2, text="Confirm", command=lambda: confirm_transaction())
+btn_confirm.pack(pady=10)
+
+#Creates visuals for the labels being used.
+label_status = tk.Label(frame_window2, text="", fg="white", bg="black")
+label_status.pack(pady=10)
+
+#Creates the back button to be utilized.
+btn_exit = tk.Button(frame_window2, text="Exit", command=exit_application)
+btn_exit.pack(pady=10)
+
+#Creates the back button to be utilized.
+btn_back = tk.Button(frame_window2, text="Back", command=back_to_main_window)
+btn_back.pack(pady=10)
+
+#This creates the mineral image for the buy and sell screens.
+label_minerals = tk.Label(frame_window2, image=image_minerals, bg="black")
+label_minerals.pack(pady=10)
+
+#Hide the Buy/Sell window initially.
+frame_window2.pack_forget()
+
+#This removes the barrier on the buy/sell menu for it to be utilized.
+def show_buy_sell_window(action):
+    label_unit_name.config(text=f"{action} Units", font=("Helvetica", 16, "bold"))
+    label_status.config(text="")
+    frame_window1.pack_forget()
+    frame_window2.pack(fill=tk.BOTH, expand=True)
+
+#This function creates a button which allows the user to confirm the transaction rather than read every input.
+def confirm_transaction():
+    action = label_unit_name.cget("text").split()[0]
+    unit_name = unit_combobox.get()
+    quantity = entry_quantity.get()
+
+    #This checks for blank or empty values when buying or selling.
+    if not quantity:
+        label_status.config(text="Please enter a quantity.")
+        return
+
+    #This creates a fixed price for each unit so math can be repeated in a simple fashion.
+    unit_prices = {"Marine": 50, "Medic": 75, "Siege Tank": 150}
+
+    if action == "Buy":
+        buy_unit(unit_name, unit_prices[unit_name])
+    elif action == "Sell":
+        sell_unit(unit_name, unit_prices[unit_name])
+
+#Run the Tkinter event loop.
+root.mainloop()
